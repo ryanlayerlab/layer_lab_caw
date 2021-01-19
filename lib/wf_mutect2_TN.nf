@@ -102,7 +102,7 @@ process Mutect2TN{
     script:
     // please make a panel-of-normals, using at least 40 samples
     // https://gatkforums.broadinstitute.org/gatk/discussion/11136/how-to-call-somatic-mutations-using-gatk4-mutect2
-    PON = params.pon_somatic ? "--panel-of-normals ${ponSomatic}" : ""
+    PON = params.somatic_pon ? "--panel-of-normals ${ponSomatic}" : ""
     // PON =  ""
     """
     init.sh
