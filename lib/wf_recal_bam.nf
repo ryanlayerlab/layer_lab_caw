@@ -90,6 +90,7 @@ workflow wf_recal_bam{
         bams_recal = _bams_recal
 }
 process BaseRecalibrator {
+    label 'container_llab'
     // label 'cpus_1'
     label 'cpus_8'
     // cache false
@@ -135,6 +136,7 @@ process BaseRecalibrator {
 // STEP 3.5: MERGING RECALIBRATION TABLES
 
 process GatherBQSRReports {
+    label 'container_llab'
     label 'memory_singleCPU_2_task'
     label 'cpus_8'
     echo true
@@ -163,6 +165,7 @@ process GatherBQSRReports {
 // STEP 4: RECALIBRATING
 
 process ApplyBQSR {
+    label 'container_llab'
     label 'memory_singleCPU_2_task'
     label 'cpus_8'
     // label 'cpus_32'
@@ -197,6 +200,7 @@ process ApplyBQSR {
 // STEP 4.5: MERGING THE RECALIBRATED BAM FILES
 
 process MergeBamRecal {
+    label 'container_llab'
     label 'cpus_8'
 
     tag {idPatient + "-" + idSample}
@@ -223,6 +227,7 @@ process MergeBamRecal {
 }
 
 process IndexBamRecal {
+    label 'container_llab'
     label 'cpus_8'
 
     tag {idPatient + "-" + idSample}

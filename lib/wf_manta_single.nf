@@ -38,6 +38,7 @@ workflow wf_germline_cnv{
 // STEP MANTA.1 - SINGLE MODE
 
 process MantaSingle {
+    label 'container_sarek'
     label 'cpus_32'
     // label 'memory_max'
 

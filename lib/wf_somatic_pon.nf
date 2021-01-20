@@ -32,6 +32,7 @@ workflow wf_somatic_pon{
 // STEP GATK GenomicsDBImport
 process SomaticPonGenomicsDBImport {
     label 'cpus_32'
+    label 'container_llab'
 
     publishDir "${params.outdir}/Preprocessing/Somatic_pon_db", mode: params.publish_dir_mode
 
@@ -70,6 +71,7 @@ process SomaticPonGenomicsDBImport {
 }
 
 process CreateSomaticPON{
+    label 'container_llab'
     label 'cpus_max'
     // label 'memory_max'
      publishDir "${params.outdir}/Preprocessing/Somatic_pon", mode: params.publish_dir_mode

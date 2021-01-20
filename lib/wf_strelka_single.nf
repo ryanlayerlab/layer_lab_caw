@@ -1,6 +1,7 @@
 // STEP STRELKA.1 - SINGLE MODE
 tools =  params.globals.tools
 process StrelkaSingle {
+    label 'container_sarek'
     label 'cpus_max'
     // label 'memory_max'
 

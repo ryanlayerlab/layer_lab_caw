@@ -31,7 +31,7 @@ workflow wf_partition_fastq{
 process PartitionFastQ {
     // label 'PartitionFastQ'
     label 'cpus_32'
-
+    label 'container_llab'
     tag {idPatient + "-" + idRun}
 
     // publishDir "${params.outdir}/Reports/${idSample}/FastQC/${idSample}_${idRun}", 

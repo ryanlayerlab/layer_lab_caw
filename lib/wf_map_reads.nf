@@ -129,6 +129,7 @@ workflow wf_gather_mapped_reads{
 process PartitionFastQ {
     // label 'PartitionFastQ'
     label 'cpus_32'
+    label 'container_llab'
 
     tag {idPatient + "-" + idRun}
 
@@ -160,7 +161,7 @@ process PartitionFastQ {
 // STEP 1: MAPPING READS TO REFERENCE GENOME WITH BWA MEM
 process MapReads {
     label 'cpus_max'
-
+    label 'container_llab'
     tag {idPatient + "-" + idRun}
 
     input:
@@ -201,7 +202,7 @@ process MapReads {
 // STEP 1.5: MERGING BAM FROM MULTIPLE LANES
 process MergeBamMapped {
     label 'cpus_16'
-
+    label 'container_llab'
     tag {idPatient + "-" + idSample}
 
     input:
@@ -222,6 +223,7 @@ process MergeBamMapped {
 
 process IndexBamFile {
     label 'cpus_16'
+    label 'container_llab'
     tag {idPatient + "-" + idSample}
     
     publishDir "${params.outdir}/Preprocessing/${idSample}/Bams/", mode: params.publish_dir_mode

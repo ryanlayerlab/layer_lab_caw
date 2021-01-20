@@ -45,6 +45,7 @@ workflow wf_individually_genotype_gvcf{
 }
 
 process IndividuallyGentoypeGVCF{
+    label 'container_llab'
     label 'cpus_8'
     tag {idSample + "-" + gvcf.baseName}
     // tag {idSample} 

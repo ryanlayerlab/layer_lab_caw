@@ -13,6 +13,7 @@ workflow wf_savvy_somatic{
 // /* SavvyCNV Related processes */
 
 process SavvyCNVCoverageSummary {
+    label 'container_llab'
    label 'cpus_16'
     tag "${idSample}"
     cache false
@@ -35,6 +36,7 @@ process SavvyCNVCoverageSummary {
 }
 
 process SavvyCNV {
+    label 'container_llab'
     label 'cpus_16'
     // tag "${idSample}"
     publishDir "${params.outdir}/VariantCalling/", mode: params.publish_dir_mode

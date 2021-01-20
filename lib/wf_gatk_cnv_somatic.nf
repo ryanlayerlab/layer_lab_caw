@@ -92,7 +92,7 @@ workflow wf_gatk_cnv_somatic{
 */
 
 process PreprocessIntervals {
-
+    label 'container_llab'
     label 'cpus_8'
     
     input:    
@@ -125,6 +125,7 @@ process PreprocessIntervals {
 }
 
 process CollectReadCounts {
+    label 'container_llab'
     label 'cpus_32'
     tag "${idSample}"
     
@@ -149,6 +150,7 @@ process CollectReadCounts {
 }
 
 process CreateReadCountPon {
+    label 'container_llab'
     // echo true
     tag "ReadCountPon"
     
@@ -184,6 +186,7 @@ process CreateReadCountPon {
 }
 
 process DenoiseReadCounts {
+    label 'container_llab'
     label 'cpus_32'
     tag "${idSample}"
     
@@ -213,6 +216,7 @@ process DenoiseReadCounts {
 }
 
 process PlotDenoisedCopyRatios {
+    label 'container_llab'
     label 'cpus_16'
     tag "${idSample}"
     
@@ -243,6 +247,7 @@ process PlotDenoisedCopyRatios {
 }
 
 process ModelSegments {
+    label 'container_llab'
     label 'cpus_32'
     tag "${idSample}"
 
@@ -270,6 +275,7 @@ process ModelSegments {
 }
 
 process PlotModeledSegments {
+    label 'container_llab'
     label 'cpus_8'
     tag "${idSample}"
     
@@ -298,6 +304,7 @@ process PlotModeledSegments {
 }
 
 process CallCopyRatioSegments {
+    label 'container_llab'
    label 'cpus_8'
     tag "${idSample}"
     

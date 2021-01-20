@@ -111,6 +111,7 @@ workflow wf_annotate{
 // STEP SNPEFF
 
 process SnpEff {
+    label 'container_llab'
     tag {"${idSample} - ${variantCaller} - ${vcf}"}
     // cache false
     publishDir params.outdir, mode: params.publish_dir_mode, saveAs: {
@@ -156,6 +157,7 @@ process SnpEff {
 // STEP COMPRESS AND INDEX VCF.1 - SNPEFF
 
 process CompressVCFsnpEff {
+    label 'container_llab'
     tag {"${idSample} - ${vcf}"}
 
     publishDir "${params.outdir}/Annotation/${idSample}/snpEff/${variantCaller}", mode: params.publish_dir_mode

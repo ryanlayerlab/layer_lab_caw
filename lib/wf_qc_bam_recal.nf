@@ -70,6 +70,7 @@ workflow wf_qc_bam_recal{
 // STEP 5: QC
 
 process SamtoolsStats {
+    label 'container_llab'
     label 'cpus_2'
 
     tag {idPatient + "-" + idSample}
@@ -94,6 +95,7 @@ process SamtoolsStats {
 
 
 process CollectAlignmentSummaryMetrics{
+    label 'container_llab'
     label 'cpus_16'
     tag {idPatient + "-" + idSample}
     
@@ -121,6 +123,7 @@ process CollectAlignmentSummaryMetrics{
 }
 
 process CollectInsertSizeMetrics{
+    label 'container_llab'
     label 'cpus_16'
     tag {idPatient + "-" + idSample}
     
@@ -147,6 +150,7 @@ process CollectInsertSizeMetrics{
 }
 
 process CollectHsMetrics{
+    label 'container_llab'
     label 'cpus_16'
     tag {idPatient + "-" + idSample}
     

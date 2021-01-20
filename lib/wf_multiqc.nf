@@ -43,6 +43,7 @@ workflow wf_multiqc{
 
 
 process MultiQC {
+    label 'container_sarek'
     publishDir "${params.outdir}/Reports/MultiQC", mode: params.publish_dir_mode
     input:
         file (multiqcConfig) 

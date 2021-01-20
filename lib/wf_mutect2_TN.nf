@@ -71,6 +71,7 @@ workflow wf_mutect2_TN{
 */
 
 process Mutect2TN{
+    label 'container_llab'
     tag {idSampleTumor + "_vs_" + idSampleNormal + "-" + intervalBed.baseName}
     label 'cpus_2'
 
@@ -122,6 +123,7 @@ process Mutect2TN{
 // // STEP GATK MUTECT2.2 - MERGING STATS
 
 process MergeMutect2TNStats {
+    label 'container_llab'
     label 'cpus_16'
     tag {idSampleTumor + "_vs_" + idSampleNormal}
 
@@ -244,6 +246,7 @@ process MergeMutect2TNStats {
 // // STEP GATK MUTECT2.6 - FILTERING CALLS
 
 process FilterMutect2TNCalls {
+    label 'container_llab'
     label 'cpus_1'
 
     tag {idSampleTN}

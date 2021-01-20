@@ -18,6 +18,7 @@ workflow wf_mpileup{
 // STEP MPILEUP.1
 
 process Mpileup {
+    label 'container_llab'
     label 'memory_singleCPU_2_task'
     tag {idSample + "-" + intervalBed.baseName}
     
@@ -49,6 +50,7 @@ process Mpileup {
 // STEP MPILEUP.2 - MERGE
 
 process MergeMpileup {
+    label 'container_llab'
     tag {idSample}
 
     publishDir params.outdir, mode: params.publish_dir_mode, saveAs: { it == "${idSample}.pileup.gz" ? "VariantCalling/${idSample}/mpileup/${it}" : '' }

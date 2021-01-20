@@ -16,6 +16,7 @@ workflow wf_fastqc_fq{
 process FastQCFQ {
     label 'FastQC'
     label 'cpus_2'
+    label 'container_llab'
 
     tag {idPatient + "-" + idRun}
 

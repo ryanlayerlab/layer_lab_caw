@@ -22,6 +22,7 @@ workflow wf_qc_bam_mapped{
 
 process BamQC {
     // label 'memory_max'
+    label 'container_llab'
     label 'cpus_16'
     // cache false
 

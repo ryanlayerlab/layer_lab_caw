@@ -68,6 +68,7 @@ workflow wf_build_indexes{
 
 // And then initialize channels based on params or indexes that were just built
 process BuildFastaGz {
+    label 'container_llab'
       tag "${fasta}.gz"
     //   publishDir "$baseDir/sampleDerivatives"
 
@@ -86,6 +87,7 @@ process BuildFastaGz {
 }
 
 process BuildFastaGzFai {
+    label 'container_llab'
     tag "${fasta}.gz.fai"
     // publishDir "$baseDir/sampleDerivatives"
 
@@ -104,6 +106,7 @@ process BuildFastaGzFai {
   }
   
 process BuildFastaGzi {
+    label 'container_llab'
     tag "${fasta}.gz.gzi"
     // publishDir "$baseDir/sampleDerivatives"
 
@@ -123,6 +126,7 @@ process BuildFastaGzi {
   }
 
 process BuildBWAindexes {
+    label 'container_llab'
     tag {fasta}
 
     publishDir params.outdir, mode: params.publish_dir_mode,
@@ -146,6 +150,7 @@ process BuildBWAindexes {
 
 
 process BuildDict {
+    label 'container_llab'
     tag {fasta}
 
     publishDir params.outdir, mode: params.publish_dir_mode,
@@ -172,6 +177,7 @@ process BuildDict {
 
 
 process BuildFastaFai {
+    label 'container_llab'
     tag {fasta}
 
     publishDir params.outdir, mode: params.publish_dir_mode,
@@ -195,6 +201,7 @@ process BuildFastaFai {
 
 
 process BuildDbsnpIndex {
+    label 'container_llab'
     tag {dbsnp}
 
     publishDir params.outdir, mode: params.publish_dir_mode,
@@ -217,6 +224,7 @@ process BuildDbsnpIndex {
 
 
 process BuildGermlineResourceIndex {
+    label 'container_llab'
     tag {germlineResource}
 
     publishDir params.outdir, mode: params.publish_dir_mode,
@@ -238,6 +246,7 @@ process BuildGermlineResourceIndex {
 }
 
 process BuildKnownIndelsIndex {
+    label 'container_llab'
     tag {knownIndels}
 
     publishDir params.outdir, mode: params.publish_dir_mode,
@@ -260,6 +269,7 @@ process BuildKnownIndelsIndex {
 
 
 process BuildSomaticPonIndex {
+    label 'container_llab'
     tag {pon}
 
     publishDir params.outdir, mode: params.publish_dir_mode,

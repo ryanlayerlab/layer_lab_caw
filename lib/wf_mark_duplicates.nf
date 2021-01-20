@@ -11,6 +11,7 @@ workflow wf_mark_duplicates{
 
 
 process MarkDuplicates {
+    label 'container_llab'
     label 'cpus_max'
     tag {idPatient + "-" + idSample}
 

@@ -18,6 +18,7 @@ workflow wf_cnvkit_somatic{
 
 
 process CNVKitSingle{
+    label 'container_llab'
     label 'cpus_8'
     publishDir "${params.outdir}/VariantCalling/${idSample}/CNVKit", mode: params.publish_dir_mode
     

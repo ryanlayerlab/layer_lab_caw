@@ -16,6 +16,7 @@ workflow wf_cnvkit_cnv_single_sample_mode{
 
 process CNVKit{
     label 'cpus_8'
+    label 'container_llab'
     publishDir "${params.outdir}/VariantCalling/${idSample}/CNVKit", mode: params.publish_dir_mode
     
     input:

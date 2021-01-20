@@ -13,6 +13,7 @@ workflow wf_get_software_versions{
  * Parse software version numbers
  */
 process GetSoftwareVersions {
+    label 'container_llab'
     publishDir "${params.outdir}/pipeline_info", mode: params.publish_dir_mode
 
     output:

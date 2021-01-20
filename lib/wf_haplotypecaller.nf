@@ -33,6 +33,7 @@ workflow wf_haplotypecaller{
 // STEP GATK HAPLOTYPECALLER.1
 
 process HaplotypeCaller {
+    label 'container_llab'
     label 'memory_singleCPU_task_sq'
     label 'cpus_8'
     

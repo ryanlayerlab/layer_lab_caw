@@ -76,6 +76,7 @@ workflow wf_hap_py{
 } // end of wf_hap_py
 
 process HapPy {
+    label 'container_llab'
     label 'cpus_32'
 
     tag {idSample}

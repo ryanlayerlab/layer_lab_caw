@@ -108,6 +108,7 @@ workflow wf_jointly_genotype_gvcf{
 } // end of wf_haplotypecaller
 
 process GenomicsDBImport {
+    label 'container_llab'
     label 'cpus_16'
     // echo true
     tag{interval_name}
@@ -156,6 +157,7 @@ process GenomicsDBImport {
 
 
 process GenotypeGVCFs {
+    label 'container_llab'
     label 'cpus_8'
     tag {interval_bed.baseName}
     input:
@@ -190,6 +192,7 @@ process GenotypeGVCFs {
 }
 
 process SelectVariants {
+    label 'container_llab'
     label 'cpus_8'
     tag {interval_bed.baseName}
     input:
@@ -223,6 +226,7 @@ process SelectVariants {
 
 
 process CohortConcatVCF {
+    label 'container_llab'
     label 'cpus_8'
 
     tag {'CohortConcatVCF'}

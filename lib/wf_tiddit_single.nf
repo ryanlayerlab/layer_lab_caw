@@ -14,6 +14,7 @@ workflow wf_tiddit_gm_sv{
 // STEP TIDDIT
 
 process TIDDIT {
+    label 'container_sarek'
     tag {idSample}
 
     publishDir "${params.outdir}/VariantCalling/${idSample}/TIDDIT", mode: params.publish_dir_mode

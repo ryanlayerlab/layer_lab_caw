@@ -63,6 +63,7 @@ workflow wf_mutect2_single{
         vcf = FilterMutect2SingleCalls.out
 } // end of wf_mutect2_single
 process Mutect2Single{
+    label 'container_llab'
     tag {idSample + "-" + intervalBed.baseName}
     label 'cpus_16'
 
@@ -101,6 +102,7 @@ process Mutect2Single{
 }
 
 process MergeMutect2SingleStats {
+    label 'container_llab'
     label 'cpus_16'
     tag {idSample}
 
@@ -127,6 +129,7 @@ process MergeMutect2SingleStats {
 
 
 process FilterMutect2SingleCalls {
+    label 'container_llab'
     label 'cpus_1'
 
     tag {idSample}

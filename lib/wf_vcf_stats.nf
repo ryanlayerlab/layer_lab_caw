@@ -19,7 +19,8 @@ workflow wf_vcf_stats{
 }
 
 process BcftoolsStats {
-    label 'cpus_1'
+    label 'container_llab'
+    label 'cpus_8'
 
     tag {"${variantCaller} - ${vcf}"}
 
@@ -44,7 +45,8 @@ process BcftoolsStats {
 
 
 process Vcftools {
-    label 'cpus_1'
+    label 'container_llab'
+    label 'cpus_8'
 
     tag {"${variantCaller} - ${vcf}"}
 

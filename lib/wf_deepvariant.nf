@@ -1,6 +1,6 @@
 tools = params.globals.tools
 model = params.model
-workflow wf_deepvariant{
+workflow wf_deepvariant{  
     take: _dm_bams
     take: _target_bed
     take: _fasta
@@ -43,6 +43,7 @@ workflow wf_deepvariant{
 
 process DV_Combined{
     label "cpus_max"
+    label 'container_deepvariant'
     tag "${bam}"
     publishDir "${params.outdir}/VariantCalling/${idSample}/DeepVariant", mode: params.publish_dir_mode
     
@@ -75,6 +76,7 @@ process DV_Combined{
 
 process DV_MakeExamples{
     label 'cpus_max'
+    label 'container_deepvariant'
     tag "${bam}"
     publishDir "${params.outdir}/Preprocessing/${idSample}/DV_MakeExamples/", mode: params.publish_dir_mode,
     saveAs: {filename -> "logs/log"}
@@ -116,6 +118,7 @@ process DV_MakeExamples{
 
 process DV_CallVariants{
    label 'cpus_max'
+   label 'container_deepvariant'
   tag "${bam}"
 
   input:
@@ -148,6 +151,7 @@ process DV_CallVariants{
 process DV_PostprocessVariants{
 
   label 'cpus_32'
+  label 'container_deepvariant'
   tag "${bam}"
   publishDir "${params.outdir}/VariantCalling/${idSample}/DeepVariant", mode: params.publish_dir_mode
 

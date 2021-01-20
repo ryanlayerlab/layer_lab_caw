@@ -17,6 +17,7 @@ workflow wf_build_intervals{
 
 // STEP 0: CREATING INTERVALS FOR PARALLELIZATION (PREPROCESSING AND VARIANT CALLING)
 process BuildIntervals {
+  label 'container_llab'
   tag {fastaFai}
 
   publishDir params.outdir
@@ -37,6 +38,7 @@ process BuildIntervals {
 }
 
 process CreateIntervalBeds {
+  label 'container_llab'
     tag {intervals.fileName}
 
     input:
