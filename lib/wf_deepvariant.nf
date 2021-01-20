@@ -1,5 +1,5 @@
 tools = params.globals.tools
-
+model = params.model
 workflow wf_deepvariant{
     take: _dm_bams
     take: _target_bed
