@@ -61,24 +61,30 @@ Nextflow (and this pipeline) allows the following three ways to pass params to a
         runName: "cancer_center_tiny"
         sendEmail: False
         nfOptions: "-with-reports -with-trace -with-timeline -with-dag flowchart.png"
-3. As part of the *profile config* file. See examples in the *conf* subdirectory.
+3. In various *config* files. See *conf/genomes.config* for some examples.
 
 #### *Input.tsv*
 This file contains the sample information in a seven column tsv. The columns represetns:
-1. Patient ID
-2. Patient Sex (XX, XY, or ZZ for unspecified)
+1. Patient ID.
+2. Patient Sex (XX, XY, or ZZ for unspecified).
 3. Sample type. 0 for a normal sample, and 1 for a tumor.
 4. Sample Name. A single patient can have multiple samples drawn.
-5. Lane Number of the flow cell carrying the sample (In future we might omit this column as the pratcie of splitting a sample in multiple lanes seems no longer relevant)
-6. Read1 fastq
-7. Read2 fastq
+5. Lane Number of the flow cell carrying the smple (In future we might omit this column as the pratcie of splitting a sample in multiple lanes seems no longer relevant).
+6. Read1 fastq.
+7. Read2 fastq.
    
 `A sample input tsv file:`
 
     KU1919	ZZ	0	KU1919P	1	/scratch/Shares/layer/workspace/downsampled_data/cancer_center/KU1919P.R1.fq.gz /scratch/Shares/layer/workspace/downsampled_data/cancer_center/KU1919P.R2.fq.gz
     KU1919	ZZ	1	KU1919C	1	/scratch/Shares/layer/workspace/downsampled_data/cancer_center/KU1919C.R1.fq.gz /scratch/Shares/layer/workspace/downsampled_data/cancer_center/KU1919C.R2.fq.gzL2_1.fq.gz	KU1919P/KU1919P_TD180603261_HT3LKCCXY_L2_2.fq.gz
 
+## Porting the pipeline to your own infrastructure (HPC, AWS etc)
+In order to run the pipeline on your own infrastructre, you'll need the following components:
+1. All software packages used by the components that you need for your analysis. Our singularity container contains for example the GATK, BWA-MEM, Samtools, Bcftools and so on. This can be either locally installed or contained by a singularity or docker container.
+2. Changes to configuration files accordingly if the software is containised (see *conf/base.config* for various directives).
+3. Configuration files that provides detials about your execution envirnoment (an *executor* for nextflow, see *nextflow.config*, and  *conf/fiji.config*) for some examples.
 
+ 
 ## Extras
 #### Building singularity container
 The `containers/dna_seq` subdirectory contains the required *environment.yaml* and the singularity recipe file to generate the singularity image that we use. Our current working version of singularity is 3.1.1. Depending upon your singularity configuration you will need something like the following to generate the image:
