@@ -218,6 +218,10 @@ ch_giab_highconf_tbi = params.giab_highconf_tbi ? Channel.value(file(params.giab
 ch_giab_highconf_regions = params.giab_highconf_regions ? Channel.value(file(params.giab_highconf_regions)) : "null"
 ch_chco_highqual_snps = params.chco_highqual_snps ? Channel.value(file(params.chco_highqual_snps)) : "null"
 
+// Parameters needed for QC
+qc_finger_print_sites = params.finger_print_sites ? Channel.value(file(params.finger_print_sites)) : "null"
+
+
 /* Create channels for various indices. These channels are either filled by the user parameters or 
 form inside the build_indices workflow */
 ch_fasta_fai = ch_fasta_gz = ch_fasta_gzi = ch_fasta_gz_fai \
@@ -247,6 +251,8 @@ include {wf_savvy_somatic} from './lib/wf_savvy_somatic'
 include {wf_vcf_stats} from './lib/wf_vcf_stats' 
 include {wf_multiqc} from './lib/wf_multiqc' 
 include {ConcatVCF} from './lib/wf_haplotypecaller'
+include {wf_alamut} from './lib/alamut'
+include {exonCoverage; onTarget; wf_raw_bam_exonCoverage; insertSize; dnaFingerprint; collectQC} from './lib/quality_control'
 
 
 workflow{
@@ -331,6 +337,14 @@ workflow{
             ch_fasta_fai,         
             ch_dict
             )
+    
+    // QC stats that go into final QC excel report
+    exonCoverage(ch_bam_recal,ch_fasta,ch_fasta_fai,ch_dict,ch_target_bed,ch_bait_bed,"recal")
+    onTarget(ch_bam_recal,ch_fasta,ch_fasta_fai,ch_dict,ch_target_bed,ch_padded_target_bed)
+    wf_raw_bam_exonCoverage(ch_bam_mapped,ch_fasta,ch_fasta_fai,ch_dict,ch_target_bed,ch_bait_bed)
+    insertSize(ch_bam_recal)
+    dnaFingerprint(ch_bam_recal,qc_finger_print_sites)
+
 
 /* At this point we have the following bams:
 a) raw unmarked bams
@@ -476,16 +490,16 @@ c) recalibrated bams
         ch_dbsnp_index,
         ch_target_bed
     )
-
-    wf_jointly_genotype_gvcf(
-        wf_haplotypecaller.out.gvcf_GenotypeGVCFs,
-        ch_target_bed,
-         ch_fasta,
-        ch_fasta_fai,         
-        ch_dict,
-        ch_dbsnp,
-        ch_dbsnp_index
-    )
+   
+    // wf_jointly_genotype_gvcf(
+      //  wf_haplotypecaller.out.gvcf_GenotypeGVCFs,
+       // ch_target_bed,
+        // ch_fasta,
+       // ch_fasta_fai,         
+       // ch_dict,
+       // ch_dbsnp,
+       // ch_dbsnp_index
+    // )
 
     wf_gatk_cnv_somatic (
         // wf_mark_duplicates.out.dm_bams,
@@ -513,8 +527,9 @@ c) recalibrated bams
     //     )
 
     wf_vcf_stats(wf_deepvariant.out.vcf,
-        wf_jointly_genotype_gvcf.out.vcfs_with_indexes
-        )
+       wf_jointly_genotype_gvcf.out.vcfs_with_indexes
+    )
+
 
     wf_multiqc(
         wf_get_software_versions.out,
@@ -527,6 +542,9 @@ c) recalibrated bams
         wf_vcf_stats.out.bcfootls_stats,
         wf_vcf_stats.out.vcfootls_stats
     )
+
+    wf_alamut(wf_jointly_genotype_gvcf.out.vcfs_with_indexes)
+    collectQC(file(tsv_path), params.outdir,exonCoverage.out,wf_raw_bam_exonCoverage.out,insertSize.out,dnaFingerprint.out,wf_vcf_stats.out.bcfootls_stats,wf_alamut.out)
 
 } // end of workflow
 
