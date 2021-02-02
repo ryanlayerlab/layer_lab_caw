@@ -88,7 +88,7 @@ if (tsv_path) {
         default: exit 1, "Unknown step ${step}"
     }
 }
-
+// ch_input_sample.dump(tag: 'ch_input_sample')
 // params.GLOBALS['step'] = step 
 
 (gender_map, status_map, ch_input_sample) = extractInfos(ch_input_sample)
@@ -112,6 +112,7 @@ params.fasta_fai = params.genome && params.fasta ? params.genomes[params.genome]
 params.fasta_gz = params.genome && !('annotate' in step) ? params.genomes[params.genome].fasta_gz ?: null : null
 params.fasta_gz_fai = params.genome && params.fasta ? params.genomes[params.genome].fasta_gz_fai ?: null : null
 params.fasta_gzi = params.genome && !('annotate' in step) ? params.genomes[params.genome].fasta_gzi ?: null : null
+params.somalier_sites = params.genome ? params.genomes[params.genome].somalier_sites : null
 
 // Annotation related params (snpEff)
 params.snpEff_db = params.genome && ('annotate' in step) ? params.genomes[params.genome].snpEff_db ?: null : null
@@ -158,6 +159,7 @@ params.known_indels = params.genome && ( 'mapping' in step || 'markdups' in step
 params.known_indels_index = params.genome && params.known_indels ? params.genomes[params.genome].known_indels_index ?: null : null
 
 
+ch_somalier_sites = params.somalier_sites ? Channel.value(file(params.somalier_sites)) : "null"
 ch_acLoci = params.ac_loci && 'ascat' in tools ? Channel.value(file(params.ac_loci)) : "null"
 ch_acLoci_GC = params.ac_loci_GC && 'ascat' in tools ? Channel.value(file(params.ac_loci_GC)) : "null"
 ch_chrDir = params.chr_dir && 'controlfreec' in tools ? Channel.value(file(params.chr_dir)) : "null"
@@ -233,6 +235,7 @@ include {wf_fastqc_fq} from './lib/wf_fastqc_fq'
 include {wf_map_reads} from './lib/wf_map_reads' 
 include {wf_qc_bam_mapped} from './lib/wf_qc_bam_mapped' 
 include {wf_mark_duplicates} from './lib/wf_mark_duplicates' 
+include {wf_somalier_extraction} from './lib/wf_somalier_extraction' 
 include {wf_recal_bam} from './lib/wf_recal_bam' 
 include {wf_qc_bam_recal} from './lib/wf_qc_bam_recal' 
 include {wf_deepvariant} from './lib/wf_deepvariant' 
@@ -243,7 +246,9 @@ include {wf_haplotypecaller} from './lib/wf_haplotypecaller'
 include {wf_individually_genotype_gvcf} from './lib/wf_individually_genotype_gvcf' 
 include {wf_jointly_genotype_gvcf} from './lib/wf_jointly_genotype_gvcf' 
 include {wf_gatk_cnv_somatic} from './lib/wf_gatk_cnv_somatic' 
-include {wf_savvy_somatic} from './lib/wf_savvy_somatic' 
+include {wf_savvy_cnv_somatic} from './lib/wf_savvy_cnv_somatic' 
+include {wf_cnvkit_somatic} from './lib/wf_cnvkit_somatic' 
+include {wf_manta_single} from './lib/wf_manta_single' 
 include {wf_vcf_stats} from './lib/wf_vcf_stats' 
 include {wf_multiqc} from './lib/wf_multiqc' 
 include {ConcatVCF} from './lib/wf_haplotypecaller'
@@ -302,11 +307,17 @@ workflow{
                         ch_target_bed)
 
     ch_bam_marked = Channel.empty()
+    
+    ch_bam_marked = Channel.empty()
     if (!(step in ['recalibrate', 'variantcalling', 'annotate'])){
             wf_mark_duplicates(ch_bam_mapped)
             ch_bam_marked = wf_mark_duplicates.out.dm_bams
     }
-    
+    // Run Somalier extraction step
+    wf_somalier_extraction(ch_bam_marked,
+                            ch_fasta,
+                            ch_fasta_fai,
+                            ch_somalier_sites)
     // GATK Base Quality Score Recalibration
     wf_recal_bam(
             ch_bam_marked, // recalibrated bams
@@ -496,10 +507,44 @@ c) recalibrated bams
         ch_dict,
         ch_read_count_pon
     )
-
-    // wf_savvy_somatic_cnv(wf_mark_duplicates.out.dm_bams)
-    wf_savvy_somatic(ch_bam_for_vc)
     
+    wf_savvy_cnv_somatic(ch_bam_for_vc)
+    
+    (ch_normal_md_bam, ch_tumor_md_bam) = 
+        ch_bam_marked.branch{
+            _:  status_map[it[0], it[1]] == 0
+            __: status_map[it[0], it[1]] == 1
+        }
+    ch_normal_md_bam_only = ch_normal_md_bam.map{
+                            idP,idS,bam,bai -> 
+                            bam
+                            }.collect()
+    ch_normal_md_bai_only = ch_normal_md_bam.map{
+                            idP,idS,bam,bai -> 
+                            bai
+                            }.collect()
+    ch_tumor_md_bam_only = ch_tumor_md_bam.map{
+                            idP,idS,bam,bai -> 
+                            bam
+                            }.collect()
+    ch_tumor_md_bai_only = ch_tumor_md_bam.map{
+                            idP,idS,bam,bai -> 
+                            bai
+                            }.collect()
+    
+    wf_cnvkit_somatic( ch_normal_md_bam_only,
+                        ch_normal_md_bai_only,
+                        ch_tumor_md_bam_only,
+                        ch_tumor_md_bai_only,
+                        ch_fasta,
+                        ch_fasta_fai,
+                        ch_target_bed
+                        )
+    wf_manta_single(ch_bam_for_vc,
+                    ch_target_bed,
+                    ch_fasta,
+                    ch_fasta_fai
+                    )
     // wf_cnvkit_cnv(
     //     ch_bams.collect(),
     //     ch_fasta,

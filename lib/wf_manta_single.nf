@@ -1,33 +1,15 @@
 
 tools = params.globals.tools
-
-workflow wf_germline_cnv{
-    // deepvariant output
-    //tuple val('DeepVariant'), idSample, file("${idSample}.vcf.gz")
-    take: _raw_bam
+status_map = params.globals.status_map
+workflow wf_manta_single{
+    take: _recal_bam
     take: _target_bed
     take: _fasta
     take: _fasta_fai
-    take: _cnvkit_ref
     
     main:
-    //     StrelkaSingle(
-    //         _bam_recal,
-    //         _fasta,
-    //         _fasta_fai,
-    //         _target_bed
-    // )
-        MarkDuplicates(
-            _raw_bam
-        )
-        // CNVKitSingle(
-        //      MarkDuplicates.out,
-        //     _fasta,
-        //     _fasta_fai,
-        //     _cnvkit_ref
-        // )
         MantaSingle(
-            MarkDuplicates.out,
+            _recal_bam,
             _fasta,
             _fasta_fai,
             _target_bed
@@ -55,11 +37,11 @@ process MantaSingle {
     output:
         tuple val("Manta"), idPatient, idSample, file("*.vcf.gz"), file("*.vcf.gz.tbi")
 
-    when: 'manta' in tools
+    when: 'manta_single' in tools
 
     script:
     beforeScript = params.target_bed ? "bgzip --threads ${task.cpus} -c ${targetBED} > call_targets.bed.gz ; tabix call_targets.bed.gz" : ""
-    options = params.target_bed ? "--exome --callRegions call_targets.bed.gz" : ""
+    options = params.target_bed ? "--exome  --callRegions call_targets.bed.gz" : ""
     status = status_map[idPatient, idSample]
     inputbam = status == 0 ? "--bam" : "--tumorBam"
     vcftype = status == 0 ? "diploid" : "tumor"

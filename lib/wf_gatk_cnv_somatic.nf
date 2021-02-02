@@ -1,7 +1,7 @@
 tools = params.globals.tools
 
 workflow wf_gatk_cnv_somatic{
-    take: _md_bam
+    take: _recal_bam
     take: _target_bed
     take: _fasta
     take: _fasta_fai
@@ -19,16 +19,16 @@ workflow wf_gatk_cnv_somatic{
                             _dict
                             )
 
-        CollectReadCounts(_md_bam,
+        CollectReadCounts(_recal_bam,
                         PreprocessIntervals.out)
 
         // Create pon if specified
-        (normal_read_counts, tumor_read_counts) = 
-        CollectReadCounts.out
-        .branch{
-             _: status_map[it[0], it[1]] == 0
-            __: status_map[it[0], it[1]] == 1
-        }
+        // (normal_read_counts, tumor_read_counts) = 
+        // CollectReadCounts.out
+        // .branch{
+        //      _: status_map[it[0], it[1]] == 0
+        //     __: status_map[it[0], it[1]] == 1
+        // }
         
         // normal_read_counts = 
         // CollectReadCounts.out.collect()
@@ -36,22 +36,22 @@ workflow wf_gatk_cnv_somatic{
         //      status_map[it[0], it[1]] == 0
         // }
 
-        normal_read_counts
-        .dump(tag: 'normal_read_counts: ')
+        // normal_read_counts
+        // .dump(tag: 'normal_read_counts: ')
         
-        normal_read_counts_hdf5 = 
-                normal_read_counts
-                .map{idPatient, idSample, hdf5 -> 
-                    [hdf5]
-                }
-                .dump(tag: 'hdf5: ')
+        // normal_read_counts_hdf5 = 
+        //         normal_read_counts
+        //         .map{idPatient, idSample, hdf5 -> 
+        //             [hdf5]
+        //         }
+        //         .dump(tag: 'hdf5: ')
         
-        tumor_read_counts
-        .dump(tag: 'tumor_read_counts: ')
+        // tumor_read_counts
+        // .dump(tag: 'tumor_read_counts: ')
 
-        CreateReadCountPon(
-            normal_read_counts_hdf5.collect()
-        )
+        // CreateReadCountPon(
+        //     normal_read_counts_hdf5.collect()
+        // )
         
         DenoiseReadCounts(
             CollectReadCounts.out.sample_read_counts,
@@ -105,7 +105,8 @@ process PreprocessIntervals {
         // file("preprocessed_intervals.interval_list"), emit: 'processed_intervals'
         file("preprocessed_intervals.interval_list")
 
-    when: ('gatkcnv' in tools) || ('gen_read_count_pon' in tools)
+    // when: ('gatk_cnv_somatic' in tools) || ('gen_read_count_pon' in tools)
+    when: ('gatk_cnv_somatic' in tools)
     
     script:
     intervals_options = params.no_intervals ? "" : "-L ${intervalBed}"
@@ -136,7 +137,7 @@ process CollectReadCounts {
     output:
         tuple idPatient, idSample, file("${idSample}.counts.hdf5"), emit: 'sample_read_counts'
 
-    when: ('gatkcnv' in tools) || ('gen_read_count_pon' in tools)
+    when: ('gatk_cnv_somatic' in tools)
 
     script:
     """
@@ -199,7 +200,7 @@ process DenoiseReadCounts {
     output:
         tuple idPatient, idSample, file(std_copy_ratio), file(denoised_copy_ratio), emit: 'denoised_cr'
 
-    when: 'gatkcnv' in tools
+    when: ('gatk_cnv_somatic' in tools)
 
     script:
     std_copy_ratio = "${idSample}.standardizedCR.tsv"
@@ -229,7 +230,7 @@ process PlotDenoisedCopyRatios {
     output:
         file(out_dir)  
 
-    when: 'gatkcnv' in tools
+    when: ('gatk_cnv_somatic' in tools)
 
     script:
     out_dir = "PlotDenoisedReadCounts" 
@@ -259,7 +260,7 @@ process ModelSegments {
     output:
         tuple idPatient, idSample, file("${out_dir}/${idSample}.cr.seg"), file("${out_dir}/${idSample}.modelFinal.seg"), emit: 'modeled_seg'
 
-    when: 'gatkcnv' in tools
+    when: ('gatk_cnv_somatic' in tools)
 
     script:
     out_dir = "ModeledSegments"
@@ -287,7 +288,7 @@ process PlotModeledSegments {
     output:
     file(out_dir)
     
-    when: 'gatkcnv' in tools
+    when: ('gatk_cnv_somatic' in tools)
     script:
     out_dir = "PlotsModeledSegments"
     
@@ -316,7 +317,7 @@ process CallCopyRatioSegments {
     output:
         file("${idSample}.called.seg")
 
-    when: 'gatkcnv' in tools
+    when: ('gatk_cnv_somatic' in tools)
     script:
     
     """

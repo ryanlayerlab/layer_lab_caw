@@ -1,11 +1,11 @@
 tools =  params.globals.tools
-workflow wf_savvy_somatic{
-    take: _md_bam
+workflow wf_savvy_cnv_somatic{
+    take: _bam_recal
     main:
      /* SavvyCNV Somatic Copy Number related calls */
     /* Starting point is duplicated marked bams from MarkDuplicates.out.marked_bams with the following structure */
     /* MarkDuplicates.out.marked_bams => [idPatient, idSample, md.bam, md.bam.bai]*/
-    SavvyCNVCoverageSummary(_md_bam)
+    SavvyCNVCoverageSummary(_bam_recal)
     SavvyCNV(SavvyCNVCoverageSummary.out.collect())
 } // end of wf_germline_cnv
 
@@ -25,7 +25,7 @@ process SavvyCNVCoverageSummary {
     output:
     file("${idSample}.coverageBinner")
 
-    when: 'savvycnv' in tools
+    when: 'savvy_cnv_somatic' in tools
 
     script:
     
@@ -47,7 +47,7 @@ process SavvyCNV {
     output:
         file("SavvycnvResults")
     
-    when: 'savvycnv' in tools
+    when: 'savvy_cnv_somatic' in tools
     
     script:
     chunk_size = 200000

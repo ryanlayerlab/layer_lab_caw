@@ -18,7 +18,9 @@ workflow wf_recal_bam{
         _run_wf = params.known_indels  && step != 'variantcalling' &&
             ('haplotypecaller' in tools || 
             'mutect2' in tools ||
-            'mutect2_single' in tools
+            'mutect2_single' in tools || 'gatk_cnv_somatic' in tools ||
+            'gatk_cnv_germline' in tools || 'savvy_cnv_somatic' in tools ||
+            'cnvkit_somatic' in tools|| 'manta_single' in tools
             )
          if (_run_wf){
             // Create a scattered pattern 
