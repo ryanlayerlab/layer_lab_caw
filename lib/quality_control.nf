@@ -94,7 +94,16 @@ workflow wf_raw_bam_exonCoverage{
 
         //emit:
         //raw_onTarget = exonCoverage.out
-} // end of wf_raw_bam_onTarget
+}
+
+workflow wf_qc_fingerprinting_sites{
+
+    take: _bam
+    take: _sites
+
+    main:
+         dnaFingerprint(_bam,_sites,"Extra")
+}
 
 process insertSize{
     label 'container_llab'
@@ -126,12 +135,13 @@ process insertSize{
 process dnaFingerprint{
     tag {idPatient + "-" + idSample}
     label 'container_llab'
-    publishDir "${params.outdir}/Reports/${idSample}/FingerPrinting/", mode: params.publish_dir_mode
-    publishDir "${params.outdir}/QC/${idSample}/FingerPrinting", mode: params.publish_dir_mode
+    publishDir "${params.outdir}/Reports/${idSample}/FingerPrinting/${type}/", mode: params.publish_dir_mode
+    publishDir "${params.outdir}/QC/${idSample}/FingerPrinting/${type}/", mode: params.publish_dir_mode
 
     input:
     tuple idPatient, idSample, file(bam), file(bai)
     file(finger_printing_sites)
+    val type
 
 
     output:
@@ -141,7 +151,7 @@ process dnaFingerprint{
 
     script:
     """
-        python /scratch/Shares/layer/workspace/michael_sandbox/QC_pipeline/bin/dnaFingerPrinting.py $bam $finger_printing_sites $idSample
+        dnaFingerPrinting.py $bam $finger_printing_sites $idSample
     """
 }
 

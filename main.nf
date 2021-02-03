@@ -220,6 +220,7 @@ ch_chco_highqual_snps = params.chco_highqual_snps ? Channel.value(file(params.ch
 
 // Parameters needed for QC
 qc_finger_print_sites = params.finger_print_sites ? Channel.value(file(params.finger_print_sites)) : "null"
+qc_extra_finger_print_sites = params.extra_finger_print_sites ? Channel.value(file(params.extra_finger_print_sites)) : "null"
 
 
 /* Create channels for various indices. These channels are either filled by the user parameters or 
@@ -252,7 +253,7 @@ include {wf_vcf_stats} from './lib/wf_vcf_stats'
 include {wf_multiqc} from './lib/wf_multiqc' 
 include {ConcatVCF} from './lib/wf_haplotypecaller'
 include {wf_alamut} from './lib/alamut'
-include {exonCoverage; onTarget; wf_raw_bam_exonCoverage; insertSize; dnaFingerprint; collectQC} from './lib/quality_control'
+include {exonCoverage; onTarget; wf_raw_bam_exonCoverage; insertSize; dnaFingerprint; collectQC; wf_qc_fingerprinting_sites} from './lib/quality_control'
 
 
 workflow{
@@ -343,7 +344,8 @@ workflow{
     onTarget(ch_bam_recal,ch_fasta,ch_fasta_fai,ch_dict,ch_target_bed,ch_padded_target_bed)
     wf_raw_bam_exonCoverage(ch_bam_mapped,ch_fasta,ch_fasta_fai,ch_dict,ch_target_bed,ch_bait_bed)
     insertSize(ch_bam_recal)
-    dnaFingerprint(ch_bam_recal,qc_finger_print_sites)
+    wf_qc_fingerprinting_sites(ch_bam_recal,qc_extra_finger_print_sites)
+    dnaFingerprint(ch_bam_recal,qc_finger_print_sites,"Normal")
 
 
 /* At this point we have the following bams:
@@ -526,8 +528,12 @@ c) recalibrated bams
     //     ch_fasta_fai
     //     )
 
+    // wf_vcf_stats(wf_deepvariant.out.vcf,
+       // wf_jointly_genotype_gvcf.out.vcfs_with_indexes
+    // )
+
     wf_vcf_stats(wf_deepvariant.out.vcf,
-       wf_jointly_genotype_gvcf.out.vcfs_with_indexes
+        ConcatVCF.out.concatenated_vcf_with_index
     )
 
 
@@ -542,8 +548,9 @@ c) recalibrated bams
         wf_vcf_stats.out.bcfootls_stats,
         wf_vcf_stats.out.vcfootls_stats
     )
-
-    wf_alamut(wf_jointly_genotype_gvcf.out.vcfs_with_indexes)
+    
+    wf_alamut(ConcatVCF.out.concatenated_vcf_with_index)
+    // wf_alamut(wf_jointly_genotype_gvcf.out.vcfs_with_indexes)
     collectQC(file(tsv_path), params.outdir,exonCoverage.out,wf_raw_bam_exonCoverage.out,insertSize.out,dnaFingerprint.out,wf_vcf_stats.out.bcfootls_stats,wf_alamut.out)
 
 } // end of workflow
